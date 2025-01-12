@@ -79,11 +79,14 @@ def compute_dcf(ticker, years=10):
     print(f"The WACC is: {discount_rate:.2f}")
     growth_rate = get_growth_rate(stock)
     print(f"The growth rate is: {growth_rate:.2f}")
+    print(f"FCF: {fcf:.2f}, Discount Rate: {discount_rate:.2f}, Growth Rate: {growth_rate:.2f}")
     
     dcf_value = 0
+    print(f"| {'Year':<5} | {'FCF (in millions)':<15} |")
+    print("|" + "-"*6 + "|" + "-"*18 + "|")
     for year in range(1, years + 1):
         fcf_year = fcf * (1 + growth_rate) ** year
-        print(f"The FCF for year {year} is: {fcf_year/10**6:.2f} million")
+        print(f"| {year:<5} | {fcf_year/10**6:<15.2f} |")
         dcf_value += fcf_year / (1 + discount_rate) ** year
     terminal_value = get_terminal_value(stock, years)
     print(f"The terminal value is: {terminal_value/10**6:.2f} million")
