@@ -1,6 +1,7 @@
 import yfinance as yf
 import numpy as np
 import argparse
+import math
 
 def get_risk_free_rate():
     treasury_yield10 = yf.Ticker("^TNX") 
@@ -29,6 +30,8 @@ def get_wacc(stock):
     total_debt = stock_bal.loc["Total Debt"].iloc[0]
     try:
         interest_expense = stock_fin.loc["Interest Expense"].iloc[0]
+        if math.isnan(interest_expense):
+            interest_expense = 0
     except:
         interest_expense = 0
     cost_of_debt = interest_expense / total_debt
@@ -113,10 +116,9 @@ def calculate_margin(ticker, years=10):
     return (current_val, round(dcf_val, 2).item(), round((dcf_val - current_val) / current_val, 2).item())
 
 if __name__ == "__main__":
+    # calculate_margin("INTA")
 
-    # Create the parser
     parser = argparse.ArgumentParser()
-    # Add a variadic argument
     parser.add_argument(
         "years", 
         nargs=1,  
@@ -130,4 +132,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     dcf = [(ticker, calculate_margin(ticker, int(args.years[0]))) for ticker in args.tickers]
     sorted_dcf = sorted(dcf, key=lambda x: x[1][2], reverse=True)
-    print(sorted_dcf)
+    print("*" + "-"*12 + "*" + "-"*17 + "*" + "-"*17 + "*"+ "-"*17 + "*")
+    print(f"| {'Ticker':<10} | {'Current Value':<15} | {'DCF Value':<15} | {'Margin':<15} |")
+    print("*" + "-"*12 + "*" + "-"*17 + "*" + "-"*17 + "*" + "-"*17 + "*")
+    for ticker, (current_val, dcf_val, margin) in sorted_dcf:
+        print(f"| {ticker:<10} | {current_val:<15.2f} | {dcf_val:<15.2f} | {margin:<15.2f} |")
+    print("*" + "-"*12 + "*" + "-"*17 + "*" + "-"*17 + "*" + "-"*17 + "*")
